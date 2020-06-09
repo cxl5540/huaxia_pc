@@ -56,15 +56,16 @@
         <p>{{$store.state.lg=='C'?'选择手数':'Select number of hands'}}</p>
         <span v-for="item,index in ss" @click="choosess(item,index)" :class="actve1==index?'choose':''">{{item}}手</span>
          <span  :class="actve1=='f'?'choose':''"><input :class="actve1=='f'?'choose':''" type="num" v-model="shousu" @focus="shuru()" @blur="getshousu()"></span>
-        <p style="border-bottom: 1px solid #666666;padding-bottom: 20px;">注:1手=11*22</p>
+        <p v-if="$store.state.lg=='C'" style="border-bottom: 1px solid #666666;padding-bottom: 20px;">注:1手={{$store.state.detaillist.lastP}}*{{$store.state.detaillist.lowestPrice}}</p>
+         <p v-else-if="$store.state.lg=='E'" style="border-bottom: 1px solid #666666;padding-bottom: 20px;">Notice:1hand=:1手={{$store.state.detaillist.lastP}}*￥{{$store.state.detaillist.lowestPrice}}</p>
         <div class="buydel">
            <p><span>{{$store.state.lg=='C'?'买入产品':'Buy products'}}:</span><span>{{$store.state.lg=='C'?$store.state.detaillist.productName:$store.state.detaillist.eproductName}}</span></p>
           <p><span>{{$store.state.lg=='C'?'买入类型':'Type'}}:</span><span>{{$store.state.lg=='C'?'买入类型':'Type'}}:{{$store.state.lg=='C'&&type==1?'买涨':$store.state.lg=='C'&&type=='down'?'买跌':$store.state.lg=='E'&&type==1?'Buy up':'Buy put'}}</span></p>
           <p><span>{{$store.state.lg=='C'?'买入合约价':'Purchase contract price'}}:</span><span>{{curdata.curPrice}}</span></p>
           <p><span>{{$store.state.lg=='C'?'买入合约价值':'Purchase contract value'}}:</span><span>{{curdata.curValue}}</span></p>
-          <p><span>{{$store.state.lg=='C'?'交易手续费':'Transaction fee'}}:</span><span>{{curdata.buyFee}}</span></p>
-          <p><span>{{$store.state.lg=='C'?'交易保证金':'Bond'}}:</span><span>{{curdata.tradeKicker}}</span></p>
-          <p><span>{{$store.state.lg=='C'?'合计金额':'payment'}}:</span><span>￥{{curdata.total}}</span></p>
+          <p><span>{{$store.state.lg=='C'?'交易手续费':'Transaction fee'}}:</span><span>{{curdata.currencyUnit}}{{curdata.buyFee}}</span></p>
+          <p><span>{{$store.state.lg=='C'?'交易保证金':'Bond'}}:</span><span>{{curdata.currencyUnit}}{{curdata.tradeKicker}}</span></p>
+          <p><span>{{$store.state.lg=='C'?'合计金额':'payment'}}:</span><span>{{curdata.currencyUnit}}{{curdata.total}}</span></p>
         </div>
         <div class="btn" @click="surebuy">
           <button style="background: #007AFF;width: 100%;">{{$store.state.lg=='C'?'立即买入':'Buy'}}</button>
@@ -122,9 +123,10 @@ export default {
   watch: {
     '$route'(){
       this.actve='a';
+        this.productCode=this.$route.query.productCode;
      this.time_arr();
      this.getKLineMinute();
-      this.productCode=this.$route.query.productCode;
+
     },
     shousunum(val){
       console.log(val)
@@ -134,24 +136,33 @@ export default {
     },
     actve: function (val, oldVal) {
         // 这里就可以通过 val 的值变更来确定
+
        if(val=='a'){  //5分钟
+           this.productCode=this.$route.query.productCode?this.$route.query.productCode:'COMEXGC';
           this.a=5;
           this.time_arr();
         	this.getKLineMinute()
         }else if(val=='b'){  //15分钟
-          this.a=15;
-          this.time_arr();
-          this.getKLineMinute();
+          // this.a=15;
+          this.productCode=this.$route.query.productCode?this.$route.query.productCode:'COMEXGC';
+           this.getklineall(val);
+          // this.time_arr();
+          // this.getKLineMinute();
         }else if(val=='d'){  //60分钟
-          this.b=60;
-          this.time_arr60()
-          this.getKLineMinute60(val)
+         this.productCode=this.$route.query.productCode?this.$route.query.productCode:'COMEXGC';
+          // this.b=60;
+          // this.time_arr60()
+             this.getklineall(val);
+         // this.getKLineMinute60(val)
         }else if(val=='e'){  //一天
+         this.productCode=this.$route.query.productCode?this.$route.query.productCode:'COMEXGC';
           this.getKLineHour();
         }else if(val=='c'){//30分钟
-          this.b=30;
-          this.time_arr60()
-          this.getKLineMinute60(val)
+        this.productCode=this.$route.query.productCode?this.$route.query.productCode:'COMEXGC';
+          // this.b=30;
+          // this.time_arr60()
+          // this.getKLineMinute60(val)
+           this.getklineall(val);
         }
        },
       screenWidth(val){
@@ -303,7 +314,6 @@ export default {
           });
        },
        submit(){
-       	  	$('#loading').show()
        	  	let _this=this;
          		$.ajax({
        		 	dataType:"json", 
@@ -311,7 +321,7 @@ export default {
        		 	url:this.testUrl+'product/createOrder',
        		 	data:{
        		 		uid:localStorage.getItem('uid'),
-       		 		productCode:this.$route.query.productCode,
+       		 		productCode:this.$route.query.productCode?this.$route.query.productCode:'COMEXGC',
        		 		buyType :this.type==1?16:17,
        		 		buyIndex:'',
        		 		buyCount:this.shousunum,
@@ -319,7 +329,7 @@ export default {
        		 	},
        		 	success:function(res){
        	       		if(res.code==200){
-       	       		   _this.$message.success(this.$store.state.lg=='C'?'购买成功':'Successful purchase');
+       	       		   _this.$message.success(_this.$store.state.lg=='C'?'购买成功':'Successful purchase');
        	       		  _this.showbuy=false;
                     _this.$store.state.showmodel=false;
        	       		}
@@ -367,11 +377,10 @@ export default {
 		       timeArr.push('00:00');
 		       timeArr.concat(this.getNextTime('00:00', '04:15',this.a, timeArr));
 		       this.ftimeArr=timeArr;
-		 	}else if(this.productCode=='NYMEXCL' || this.productCode=='NYMEXNG'
+		 	}else if(this.productCode=='NYMEXNG'||this.productCode=='NYMEXCL'
 		   || this.productCode=='COMEXSI'|| this.productCode=='COPPER'|| this.productCode=='CMENQ'
 		   || this.productCode=='SZ161125' || this.productCode=='USA30'|| this.productCode=='AUDCAD'
 		   || this.productCode=='GBPAUD' || this.productCode=='CMEEC'|| this.productCode=='SPX500'){
-
 		     //美原油,天然气，美白银，黄铜，纳斯达克指数，标普500，道琼斯指数，澳元，英镑，欧元
 		 		 var timeArr = new Array();
 		       timeArr.push('06:00');
@@ -398,7 +407,6 @@ export default {
 		       timeArr.push('00:00');
 		       timeArr.concat(this.getNextTime('00:00', '04:15',this.a, timeArr));
 		       this.ftimeArr=timeArr;
-           console.log(this.ftimeArr)
 		 	}else{      //恒生
 		 		 var timeArr = new Array();
 		 		   timeArr.push('09:15');
@@ -438,10 +446,17 @@ export default {
 		     this.ftimeArr60=timeArr;
 		   }else if(this.productCode=='CFFEXIF'){  //沪深
 		 		 var timeArr = new Array();
-		 		 timeArr.push('10:00');
-		     timeArr.concat(this.getNextTime('10:00', '11:00',this.b, timeArr));
-		     timeArr.push('13:00');
-		     timeArr.concat(this.getNextTime('13:00', '15:00',this.b, timeArr));
+         if(this.b=30){
+           timeArr.push('09:30');
+           timeArr.concat(this.getNextTime('09:30', '23:30',this.b, timeArr));
+         }else{
+           timeArr.push('10:00');
+           timeArr.concat(this.getNextTime('10:00', '23:00',this.b, timeArr));
+         }
+		 		 // timeArr.push('10:00');
+		    //  timeArr.concat(this.getNextTime('10:00', '11:00',this.b, timeArr));
+		    //  timeArr.push('13:00');
+		    //  timeArr.concat(this.getNextTime('13:00', '15:00',this.b, timeArr));
 		     this.ftimeArr60=timeArr;
 		 	}else if(this.productCode=='CFFEXIF'){  //德国DAX指数   FDAX
 		 		var timeArr = new Array();
@@ -468,14 +483,21 @@ export default {
 
 		  	}else{      //恒生
 		 		 var timeArr = new Array();
-		      timeArr.push('10:00');
-		      timeArr.concat(this.getNextTime('10:00', '11:00',this.b, timeArr));
-		      timeArr.push('13:00');
-		      timeArr.concat(this.getNextTime('13:00', '16:00',this.b, timeArr));
-		      timeArr.push('18:00');
-		      timeArr.concat(this.getNextTime('18:00', '23:00',this.b, timeArr));
-		      timeArr.push('00:00');
-		      timeArr.concat(this.getNextTime('17:15', '01:00',this.b, timeArr));
+         if(this.b=30){
+           timeArr.push('09:30');
+           timeArr.concat(this.getNextTime('09:30', '23:30',this.b, timeArr));
+         }else{
+           timeArr.push('10:00');
+           timeArr.concat(this.getNextTime('10:00', '23:00',this.b, timeArr));
+         }
+		      // timeArr.push('10:00');
+		      // timeArr.concat(this.getNextTime('10:00', '11:00',this.b, timeArr));
+		      // timeArr.push('13:00');
+		      // timeArr.concat(this.getNextTime('13:00', '16:00',this.b, timeArr));
+		      // timeArr.push('18:00');
+		      // timeArr.concat(this.getNextTime('18:00', '23:00',this.b, timeArr));
+		      // timeArr.push('00:00');
+		      // timeArr.concat(this.getNextTime('17:15', '01:00',this.b, timeArr));
 		      this.ftimeArr60=timeArr;
 		 	}
 		 },
@@ -730,6 +752,8 @@ export default {
                   volume.push({'value':p.V,'close':p.C,'yclose':p.VC,})
                 }
          var dataattr=[];
+         console.log(categoryData);
+         console.log(_this.ftimeArr60)
          _this.$store.state.lg=='C'?dataattr[0]='当前价':dataattr[0]='Last';
         var option = {
             color: ['#1E90FF'],
@@ -1190,6 +1214,282 @@ export default {
           }
       });
     },
+    getklineall(val){  //获取日线
+    let url='';
+    val=='d'?url=this.testUrl+'product/getKLineHourMinute':val=='b'?url=this.testUrl+'product/getKLineFifteenMinute':url=this.testUrl+'product/getKLine30Minute';
+         let data={
+            productCode:this.$route.query.productCode?this.$route.query.productCode:'COMEXGC',
+         }
+        let _this=this;
+         $.ajax({
+           url:url,
+            dataType:"json",   
+            data:data,    //参数值
+            type:"get",   //请求方式
+            success:function(res){
+              if(res.code==200){
+              _this.mindata=res.data;
+               let categoryData = [];
+               let values = [];
+               let close_px=[];
+               let avg_px=[];
+               let volume=[];
+                for(let p of res.data){
+                p.D=p.D.split(':')[0]+':'+p.D.split(':')[1];
+                p.D=p.D.split(' ')[1]
+                     categoryData.push(p.D)  //拆分' ' 去掉分时
+                       close_px.push(Number(p.C).toFixed(2));
+                        values.push([p.O,p.C,p.L,p.H,p.V]);
+                        volume.push({'value':p.V,'close':p.C,'yclose':p.VC})
+                     }
+             function calculateMA(dayCount) {
+                  var result = [];
+                  for (var i = 0, len = values.length; i < len; i++) {
+                      if (i < dayCount) {
+                          result.push('-');
+                          continue;
+                      }
+                      var sum = 0;
+                      for (var j = 0; j < dayCount; j++) {
+                          sum += values[i - j][1];
+                      }
+                      result.push(sum / dayCount);
+                  }
+                  return result;
+              }
+       var option = {
+       color: ['#1E90FF','red','green','yellow'],
+          backgroundColor: '#1b1b1b',
+         tooltip: {
+           trigger: "axis",
+           axisPointer: {
+             type: "cross"
+           },
+         },
+           legend: {
+           top: 10,
+           data: ['k线图','MA5', 'MA10','MA20'],
+           textStyle: {
+             fontSize: 12,
+             color: ['#1E90FF','red','green','yellow'],
+           },
+       },
+       tooltip: {
+           trigger: "axis",
+           axisPointer: {
+             type: "cross"
+           },
+           formatter:function(res){
+                    if(res.length==1){
+                      return _this.nownum+res[0].value;
+                     } else{
+                        return _this.edate+ res[0].axisValue + '<br/>' +
+                      _this.eopen + res[0].data[1] + '<br/>' +
+                      _this.eclose + res[0].data[2] + '<br/>' +
+                       _this.elow + res[0].data[3] + '<br/>' +
+                       _this.ehigh + res[0].data[4] + '<br/>' +
+                       _this.nownum + res[0].data[5] + '<br/>' +
+                      (res[1] && res[1].data!== '-'? res[1].seriesName + '：' + res[1].data.toFixed(2) + '<br/>' : '') +
+                      (res[2] && res[2].data!== '-'? res[2].seriesName + '：' + res[2].data.toFixed(2) + '<br/>' : '') +
+                      (res[3] && res[3].data!== '-'? res[3].seriesName + '：' + res[3].data.toFixed(2) + '<br/>' : '')
+                     }
+              }
+        },
+      dataZoom: [
+          {
+            type: "inside",
+            start: 0,
+            end: 100
+          },
+          {
+            show: false,
+            type: "slider",
+         y: "90%",
+            start:0,
+            end: 100
+          },
+          {
+            show: false,
+            xAxisIndex: [0, 1],
+            type: "slider",
+            start: 0,
+            end: 100
+          },
+        ],
+        grid: [
+          {
+            left: "3%",
+            top: "10%",
+            height: "70%"
+          },
+          {
+            left: "1%",
+            right: "10%",
+            top: "84%",
+            height: "10%"
+          }
+        ],
+        xAxis: [
+          {
+            data: categoryData,
+            scale: true,
+            boundaryGap: false,
+            axisLine: { lineStyle: { color: '#8392A5' } },
+            splitLine: {
+              show: false
+            },
+
+          splitNumber: 100
+          },
+          {
+            gridIndex: 1,
+            data:categoryData,
+            axisLabel: {
+              show: false,
+             }
+          }
+        ],
+        yAxis: [
+          {
+            scale: true,
+            splitArea: {
+              show: false,
+            },
+             splitLine: {
+              show: true,
+              lineStyle:{
+                     color: ['#8392A5'],
+                     width: 0.5,
+                     type: 'solid'
+                }
+            },
+            axisLine: {
+              lineStyle: {
+                color: "#8392A5"
+              },
+
+            },
+            position: "right",
+          },
+          {
+            gridIndex: 1,
+            splitNumber: 3,
+            axisLine: { onZero: false },
+            axisTick: { show: false },
+            splitLine: { show: false },
+            axisLabel: { show: true },
+            axisLine: {
+              lineStyle: {
+                color: "#8392A5",
+              }
+            },
+            position: "right"
+          }
+        ],
+        series: [
+          {
+            name: "日K",
+            type: "candlestick",
+            data:values,
+            itemStyle: {
+                  normal: {
+                       color: '#FD1050',
+                      color0: '#00da3c',
+                      borderColor: '#FD1050',
+                      borderColor0: '#00da3c'
+                  }
+              },
+            markLine: {
+              silent: true,
+              data: [
+                {
+                  yAxis: 2222
+                }
+              ]
+            }
+          },
+          {
+              name: 'MA5',
+              type: 'line',
+              data: calculateMA(5),
+              smooth: true,
+              symbol: 'none',
+              lineStyle: {
+                  normal: {
+                  	opacity: 0.5,
+                  	width: 1,
+                  }
+              }
+          },
+          {
+              name: 'MA10',
+              type: 'line',
+              data: calculateMA(10),
+              smooth: true,
+              symbol: 'none',
+              lineStyle: {
+                  normal: {
+                  	opacity: 0.5,
+                  	width: 1,
+                  }
+              }
+          },
+          {
+              name: 'MA20',
+              type: 'line',
+              symbol: 'none',
+              data: calculateMA(20),
+              smooth: true,
+              lineStyle: {
+                  normal: {
+                  	opacity: 0.5,
+                  	width: 1,
+                  }
+              }
+          },
+          {
+          name: 'Volume',
+          type: 'bar',
+          xAxisIndex: 1,
+          yAxisIndex: 1,
+          data: volume,
+          itemStyle: {
+              normal: {
+                color: function(params) {
+                    var colorList;
+                   if (params.data.close-params.data.yclose >0) {
+                      colorList = "#FD1050";
+                    } else {
+                      colorList = "#00da3c";
+                    }
+                    return colorList;
+                  }
+                }
+            },
+         },
+          ],
+      }
+    if(val=='b'){
+      _this.myChart2 = echarts.init(_this.$refs.echartContainer15);
+       _this.myChart2.setOption(option);
+    }else if(val=='c'){
+      _this.myChart3 = echarts.init(_this.$refs.echartContainer30);
+       _this.myChart3.setOption(option);
+    }else{
+      _this.myChart5 = echarts.init(_this.$refs.echartContainer60);
+       _this.myChart5.setOption(option);
+    }
+              }else if(res.code==402){
+                 _this.$message.error(res.msg);
+              }else if(res.code==401){
+                 _this.$message.error(res.msg);
+              }
+            },
+            error:function(){
+            
+            }
+        });
+      },
   }
 }
 </script>

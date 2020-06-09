@@ -101,7 +101,7 @@
 	       		if(res.code==200){
 	       		 _this.$message({message: '修改成功',type: 'success'});
 	       		  // _this.userImg=_this.testUrl+res.data.fileUrl;
-                 _this.$store.state.info.headImg=res.data.fileUrl;
+                 _this.$store.state.info.headImg=_this.testUrl+res.data.fileUrl;
 	       		}
 
 	         },

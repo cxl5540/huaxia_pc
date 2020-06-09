@@ -33,6 +33,8 @@ export default {
       showf:false,
       prolist:'',
       timer:'',
+      timer1:'',
+      id:'',
       calssname:this.$store.state.lg=='C'?'全部分类':'All categories',
       prolists:[
         {
@@ -70,39 +72,53 @@ export default {
   },
   created(){
     this.nameindex=0;
-    this.deal('',this.prolists[this.nameindex].productName,this.prolists[this.nameindex].eproductName)
+     this.get();
+    this.timer1 = setInterval(() => {
+          this.get();
+        }, 5000)
   },
   watch:{
+
 	},
   mounted(){
   },
   beforeDestroy(){
     clearInterval(this.timer);
+    clearInterval(this.timer1);
   },
   methods:{
     show(){
       this.showf=!this.showf;
     },
     deal(id,name,ename){ //筛选分类
+     clearInterval(this.timer1);
+     clearInterval(this.timer);
     // this.nameindex=id;
       this.showf=false;
+      id==0?this.id='':this.id=id;
+      if(id!==''){
+        this.nameindex=id;
+      }
+       this.get();
+      this.timer = setInterval(() => {
+              this.get();
+          }, 5000)
+    },
+    get(){
       let _this=this;
       	$.ajax({
        	dataType:"json", 
        	type:"get",
        	url:this.testUrl+'product/products',
        	data:{
-          typeId:id==0?'':id
+          typeId:this.id
         },
        	success:function(res){
            		if(res.code==200){
            		  _this.prolist=res.data;
-                _this.showf=false;
-                if(id!==''){
-                  _this.nameindex=id;
-                }
-           		}
+                // _this.showf=false;
 
+           		}
              },
              error:function(res){
               _this.$message.error(_this.$store.state.emsg);

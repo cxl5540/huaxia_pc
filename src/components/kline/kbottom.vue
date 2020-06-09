@@ -15,26 +15,26 @@
           <li>{{$store.state.lg=='C'?'浮动盈亏':'Floating P/L'}}</li>
           <li>{{$store.state.lg=='C'?'买入时间':'Date'}}</li>
           <li>{{$store.state.lg=='C'?'订单号':'Order number'}}</li>
-          <li>平仓</li>
+          <li>{{$store.state.lg=='C'?'卖出':'Sell out'}}</li>
       </ul>
       <ul  v-for="item,index in list1">
           <li>{{$store.state.lg=='C'?item.productName:item.englishName}}</li>
-          <li v-show="$store.state.lg=='C'">买入类型:{{item.buy_type_id==17?'买跌':'买涨'}}</li>
-           <li v-show="$store.state.lg=='E'">Type:{{item.buy_type_id==17?'buy put':'buy up'}}</li>
+          <li v-show="$store.state.lg=='C'">{{item.buy_type_id==17?'买跌':'买涨'}}</li>
+           <li v-show="$store.state.lg=='E'">{{item.buy_type_id==17?'buy put':'buy up'}}</li>
           <li>{{item.buy_count}}</li>
           <li>{{item.buy_index}}</li>
           <li>{{item.currValue}}</li>
-          <li :class="item.profitLossStatus==1?'up':'down'">￥{{item.profitLossStatus==1?'+':'-'}}{{item.closePositionProfitLoss}}</li>
+          <li :class="item.profitLossStatus==1?'up':'down'">{{item.profitLossStatus==1?'+':'-'}}{{item.currencyUnit}}{{item.closePositionProfitLoss}}</li>
           <li>{{item.create_time}}</li>
           <li>{{item.order_number}}</li>
-          <li class="pc" @click="sell(item)">{{$store.state.lg=='C'?'立即平仓':'Close'}}</li>
+          <li class="pc" @click="sell(item)">{{$store.state.lg=='C'?'立即卖出':'Sell now'}}</li>
       </ul>
     </div>
     <div class="main" v-show="actve==1"  @scroll="listScroll1($event)">
       <ul >
           <li>{{$store.state.lg=='C'?'交易产品':'Trading products'}}</li>
           <li>{{$store.state.lg=='C'?'交易类型':'Transaction type'}}</li>
-          <li>{{$store.state.lg=='C'?'平仓数量':'Buying quantity'}}</li>
+          <li>{{$store.state.lg=='C'?'卖出数量':'Quantity sold'}}</li>
           <li>{{$store.state.lg=='C'?'平仓合约价值':'Purchase contract value'}}</li>
           <li>{{$store.state.lg=='C'?'交易手续费':'Transaction fee'}}</li>
           <li>{{$store.state.lg=='C'?'交易保证金':'Bond'}}</li>
@@ -47,9 +47,9 @@
           <li>{{item.positionTypeName}}</li>
           <li>{{item.sellCount}}</li>
           <li>{{item.sellMoney}}</li>
-          <li>￥{{item.serviceCharge}}</li>
-          <li>￥{{item.returnBond}}</li>
-          <li :class="item.profitLossStatus==1?'up':'down'">￥{{item.profitLossStatus==1?'+':'-'}}{{item.closePositionProfitLoss}}</li>
+          <li>{{item.currencyUnit}}{{item.serviceCharge}}</li>
+          <li>{{item.currencyUnit}}{{item.returnBond}}</li>
+          <li :class="item.profitLossStatus==1?'up':'down'">{{item.profitLossStatus==1?'+':'-'}}{{item.currencyUnit}}{{item.closePositionProfitLoss}}</li>
           <li>{{item.sellCreateTime}}</li>
           <li>{{item.sellNumber}}</li>
       </ul>
@@ -65,7 +65,7 @@
       <ul  v-for="item,index in list3">
           <li>{{item.type_id==9?'充值':item.type_id==10?'卖出':item.type_id==11?'提现':item.type_id==12?'买入恒指':item.type_id==13?'买入沪深300':item.type_id==14?'买入美原油':'买入黄金'}}</li>
           <li>{{item.remark}}</li>
-          <li class="up">￥{{item.money}}</li>
+          <li class="up">+{{item.currency_unit==''?'￥':item.currency_unit}}{{item.money}}</li>
           <li>{{item.order_num}}</li>
           <li>{{item.create_time}}</li>
       </ul>
@@ -81,7 +81,7 @@
       <ul   v-for="item,index in list4">
          <li>{{item.type_id==9?'充值':item.type_id==10?'卖出':item.type_id==11?'提现':item.type_id==12?'买入恒指':item.type_id==13?'买入沪深300':item.type_id==14?'买入美原油':'买入黄金'}}</li>
          <li>{{item.remark}}</li>
-         <li class="down">￥{{item.money}}</li>
+         <li class="down">-{{item.currency_unit==''?'￥':item.currency_unit}}{{item.money}}</li>
          <li>{{item.order_num}}</li>
          <li>{{item.create_time}}</li>
       </ul>
@@ -99,14 +99,14 @@
          <span  :class="actve1=='f'?'choose':''"><input :class="actve1=='f'?'choose':''" type="num" v-model="shousu" @focus="shuru()" @blur="getshousu()"></span>
         <div class="buydel">
            <p><span>{{$store.state.lg=='C'?'交易产品':'Trading products'}}:</span><span>{{detaildata.productName}}</span></p>
-          <p  :class="detaildata.buyTypeId=='1'?'up':'down'" v-if="$store.state.lg=='C'"><span>买入类型:</span>{{detaildata.buyTypeId==16?'买涨':'买跌'}}</p>
+          <p  :class="detaildata.buyTypeId==16?'up':'down'" v-if="$store.state.lg=='C'"><span>买入类型:</span>{{detaildata.buyTypeId==16?'买涨':'买跌'}}</p>
           <p  :class="detaildata.profitLossStatus=='1'?'up':'down'" v-if="$store.state.lg=='E'" ><span>Type:</span>{{detaildata.buyTypeId==16?'Buy up':'Buy put'}}</p>
            <p><span>{{$store.state.lg=='C'?'买入数量':'Buying quantity'}}:</span><span>{{detaildata.buyCount}}</span></p>
           <p><span>{{$store.state.lg=='C'?'买入合约价':'Purchase contract value'}}:</span><span>{{detaildata.buyIndex}}</span></p>
           <p><span>{{$store.state.lg=='C'?'当前合约价值':'Last contract value'}}:</span><span>{{detaildata.currValue}}</span></p>
           <p><span>{{$store.state.lg=='C'?'买入时间':'Date'}}:</span><span>{{detaildata.createTime}}</span></p>
-          <p><span>{{$store.state.lg=='C'?'交易手续费':'Transaction fee'}}:</span><span>￥{{detaildata.transactionFee}}</span></p>
-          <p><span>{{$store.state.lg=='C'?'平仓盈亏':'Bond'}}:</span><span>￥{{detaildata.closePositionProfitLoss}}</span></p>
+          <p><span>{{$store.state.lg=='C'?'交易手续费':'Transaction fee'}}:</span><span>{{detaildata.currencyUnit}}{{detaildata.transactionFee}}</span></p>
+          <p  :class="detaildata.profitLossStatus=='1'?'up':'down'"><span>{{$store.state.lg=='C'?'平仓盈亏':'Bond'}}:</span><span>{{detaildata.profitLossStatus==1?'+':'-'}}{{detaildata.currencyUnit}}{{detaildata.closePositionProfitLoss}}</span></p>
         <!--  <p>合计金额：100</p> -->
         </div>
         <div class="btn" @click="surebuy">
@@ -133,6 +133,7 @@
        shousunum:1,
        shousu:'',
        orderNumber:'',
+       timer:'',
        detaildata:'',
 	    type:[{ name:'持仓',ename:'Position'},{name:'交易明细',ename:'Transaction record'},{name:'入金明细',ename:'Deposit Detailed'},{name:'出金明细',ename:'Expend Detailed'}],
 	    }
@@ -142,7 +143,9 @@
 	  },
 	  mounted(){
  // this.getChartInfo()
-
+      this.timer = setInterval(() => {
+                 this.getchicang();
+            }, 5000)
 	  },
 	  watch:{
       shousunum(val){
@@ -153,17 +156,24 @@
       }
 	  },
 	  beforeDestroy(){
+        clearInterval(this.timer);
 	  },
 	  methods:{
       choose(index){ //头部切换
         this.actve=index;
         if(this.actve==0){  //持仓
           this.getchicang(this.page1)
+          this.timer = setInterval(() => {
+                     this.getchicang();
+                }, 5000)
         }else if(this.actve==1){ //结算
+         clearInterval(this.timer);
           this.getjiesuan(this.page2)
         }else if(this.actve==2){ //入金
+         clearInterval(this.timer);
           this.getGoldenDetail(this.page3)
         }else{  //出金
+         clearInterval(this.timer);
           this.getWithdrawDetail(this.page4)
         }
       },
@@ -235,24 +245,21 @@
         		 });
       },
       surebuy(){
-        this.$confirm('是否确定平仓, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+        this.$confirm(this.$store.state.lg=='C'?'是否确定平仓?':'Are you sure to close', this.$store.state.lg=='C'?'提示':'Tips',{
+          confirmButtonText: this.$store.state.lg=='C'?'确定':'Determine',
+          cancelButtonText: this.$store.state.lg=='C'?'取消':'Cancel',
           type: 'warning'
         }).then(() => {
           this.submit();
         }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });
+
         });
       },
       submit(){
        if(this.shousunum>this.detaildata.buyCount){
          var msg='';
          this.$store.state.lg=='C'?msg='卖出数量不能大于买入数量':msg='The sold quantity cannot be greater than the purchased quantity'
-         this.$message(msg);
+         this.$message.error(msg);
          return false;
        }
       	let _this=this;
@@ -267,7 +274,7 @@
       		 	success:function(res){
             		if(res.code==200){
                   _this.colsebuy();
-            		  _this.$message.success('已平仓')
+            		  _this.$message.success(_this.$store.state.lg=='C'?'已平仓':'Closed',)
             		}
               },
               error:function(res){

@@ -8,7 +8,7 @@ Vue.use(ElementUI)
 import router from './router'
  import store from './store'
 // import 'lib-flexible/flexible'
-
+// import 'babel-polyfill'
 Vue.config.productionTip = false
 import Axios from 'axios'
 
@@ -22,7 +22,6 @@ Vue.prototype.Tomunber=function(num){
 	num>0?num='+'+Number(num).toFixed(2)+'%':num=Number(num).toFixed(2)+'%';
 	return num;
 }
-
 Vue.prototype.initnowday=function(){
     var date=new Date();
     //年

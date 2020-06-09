@@ -95,30 +95,7 @@ export default {
        this.showbook=true;
     },
     getCode(){
-    	  	if (this.wait_timer > 0) {
-              return false;
-            }
-    	  	if (!this.tel) {
-            var msg='';
-            this.$store.state.lg=='C'?msg='手机不能为空！':msg='Phone number cannot be empty!';
-                   this.$message.error(msg);
-                    return false;
-                }
-                if(!/^1[3|4|5|7|8]\d{9}$/.test(this.tel)){
-                var msg1='';
-                this.$store.state.lg=='C'?msg='手机格式有误！':msg='Wrong phone number format!';
-                this.$message.error(msg1);
-                return false;
-               }
-    		        this.wait_timer = 59;
-                var that = this;
-                var timer_interval = setInterval(function(){
-                    if(that.wait_timer > 0){
-                        that.wait_timer -- ;
-                    }else{
-                        clearInterval(timer_interval);
-                    }
-                },1000);
+    	  
                   //在这里调取你获取验证码的ajax
                   that.getyazm()
     		},
@@ -147,7 +124,30 @@ export default {
     			 	},
     			 	success:function(res){
     		       		if(res.code==200){
-                      _this.$message.success(res.msg);
+                     	if (this.wait_timer > 0) {
+                        return false;
+                      }
+                    if (!this.tel) {
+                      var msg='';
+                      this.$store.state.lg=='C'?msg='手机不能为空！':msg='Phone number cannot be empty!';
+                             this.$message.error(msg);
+                              return false;
+                          }
+                          if(!/^1[3|4|5|7|8]\d{9}$/.test(this.tel)){
+                          var msg1='';
+                          this.$store.state.lg=='C'?msg='手机格式有误！':msg='Wrong phone number format!';
+                          this.$message.error(msg1);
+                          return false;
+                         }
+                          this.wait_timer = 59;
+                          var that = this;
+                          var timer_interval = setInterval(function(){
+                              if(that.wait_timer > 0){
+                                  that.wait_timer -- ;
+                              }else{
+                                  clearInterval(timer_interval);
+                              }
+                          },1000);
     		       		}else{
                     var msg='';
                      _this.$store.state.lg=='C'?msg=res.msg:msg='The mobile number is registered!'

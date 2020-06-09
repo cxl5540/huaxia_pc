@@ -50,9 +50,9 @@ export default {
    this.getdetail()
   },
   mounted(){
-    // this.timer = setInterval(() => {
-    //              this.getdetail();
-    //         }, 5000)
+    this.timer = setInterval(() => {
+                 this.getdetail();
+            }, 5000)
   },
  beforeDestroy() {
        clearInterval(this.timer);

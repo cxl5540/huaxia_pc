@@ -14,7 +14,8 @@
         <p><span>{{$store.state.lg=='C'?'密码':'password'}}:</span><span>******</span><span @click="changepass()">{{$store.state.lg=='C'?'修改':'Modify'}}</span></p>
         <div class="change" v-if="showchange">
             <div class="title">
-              <span>{{chgtel==true?'修改手机号':'修改密码'}}</span>
+               <span v-if="$store.state.lg=='C'">{{chgtel==true?'修改手机号':'修改密码'}}</span>
+               <span v-if="$store.state.lg=='E'">{{chgtel==true?'Modify mobile number':'Change Password'}}</span>
                <img src="../assets/close.png" alt="" @click="closechange()">
             </div>
             <div class='user changephone' v-show="chgtel">
@@ -136,22 +137,19 @@
          this.actve=index;
        },
         changename(){  //姓名弹窗
-             this.$prompt('请输入用户名', '提示', {
-               confirmButtonText: '确定',
-               cancelButtonText: '取消',
-               inputPattern:/^[\u4E00-\u9FA5]{1,5}$/,
-               inputErrorMessage: '姓名为1-5个中文字符'
+             this.$prompt(this.$store.state.lg=='C'?'请输入用户名':'enter one user name', this.$store.state.lg=='C'?'提示':'tips', {
+               confirmButtonText: this.$store.state.lg=='C'?'确定':'determine',
+               cancelButtonText:  this.$store.state.lg=='C'?'取消':'cancel',
+               // inputPattern:/^[\u4E00-\u9FA5]{1,5}$/,
+               // inputErrorMessage: '姓名为1-5个中文字符'
              }).then(({ value }) => {
                this.submitname(value)
                this.$message({
                  type: 'success',
-                 message: '你的用户名: ' + value
+                 // message: '你的用户名: ' + value
                });
              }).catch(() => {
-               this.$message({
-                 type: 'info',
-                 message: '取消输入'
-               });
+
              });
          },
          submitname(name){  //修改姓名
@@ -170,11 +168,11 @@
              		}
                },
                error:function(res){
-                 _this.$message.error('网络错误');
+                  _this.$message.error(_this.$store.state.emsg);
                },
-              complete:function(){
-              	$('#loading').hide()
-              }
+              // complete:function(){
+              // 	$('#loading').hide()
+              // }
          });
          },
         changetel(){  //修改手机
@@ -274,21 +272,20 @@
               },
               success:function(res){
                     if(res.code==200){
-                        _this.$message.success(res.msg);
+                        _this.$message.success(_this.$store.state.lg=='C'?'修改成功':'Modification succeeded');
+                        _this.showchange=false;
+
                     }
                   },
-                  error:function(res){
-                   _this.$message.error(res.msg);
-                  },
             });
           },
           changepasssubmit(){  //提交修改密码
           	var reg1 = /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/;  //姓名
             if(this.newagpassword!==this.newpassword){
-                this.$message.error('再次输入密码有误！');
+                this.$message.error(this.$store.state.lg=='C'?'再次输入密码有误！':'Wrong password entered again!');
                 return false;
             }else if(!reg1.test(this.newpassword) || this.newpassword==''){
-                this.$message.error('密码为6-20位数字+字母！');
+                this.$message.error(this.$store.state.lg=='C'?'密码为6-20位数字+字母':'Password is 6-20 digits and letters');
                 return false;
             }
           	let _this=this;
@@ -306,6 +303,7 @@
                       var msg='';
                         _this.$store.state.lg=='C'?msg='修改成功！':msg='Update success';
                  		  _this.$message.success(msg);
+                      _this.showchange=false;
                  		   _this.$router.push({path:'/login'})
                  		}else{
                  			 _this.$message(res.msg);
@@ -334,11 +332,11 @@
              	},
              	success:function(res){
                  		if(res.code==200){
-                 			_this.$message.success('绑定成功，提交审核');
+                 			_this.$message.success(_this.$store.state.lg=='C'?'绑定成功，提交审核':'Bind succeeded, submit for audit');
                  		}
                    },
                    error:function(res){
-                    _this.$message.error('网络错误');
+                    _this.$message.error(_this.$store.state.emsg);
                    },
              });
 
@@ -346,16 +344,16 @@
           },
           check(){
           	if(this.band==''||this.cardnumer==''||this.cardnumer==''||this.adress==''||this.name==''){
-          			 this.$message.error('请完善信息！');
+          			 this.$message.error(this.$store.state.lg=='C'?'请完善信息':'Please complete the information');
           			return false;
           	}else if(!/^[\u4E00-\u9FA5]{1,5}$/.test(this.name)){
-                         this.$message.error('姓名式有误！');
+                         this.$message.error(this.$store.state.lg=='C'?'姓名式有误':'Wrong name');
                         return false;
                 }else if(!/^1[3|4|5|7|8]\d{9}$/.test(this.tel)){
-                         this.$message.error('手机格式有误！');
+                         this.$message.error(this.$store.state.lg=='C'?'手机格式有误！':'Wrong format of mobile phone');
                         return false;
                 }else if(!/^\d{16}|\d{19}$/.test(this.cardnumer)){
-                	 this.$message.error('银行卡格式有误！');
+                	 this.$message.error(this.$store.state.lg=='C'?'银行卡格式有误！':'Incorrect format of bank card');
                         return false;
                 }else{
                 		return true;
@@ -439,6 +437,6 @@
        position: absolute;
        left: 50%;
        margin-left: -100px;
-        bottom: -150px;
+        bottom: -80px;
     }
 </style>
